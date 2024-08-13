@@ -4,8 +4,7 @@ const { Schema } = mongoose;
 
 const productSchema = new Schema({
   userId: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
+    type: String,
     required: true
   },
   title: {
@@ -21,8 +20,8 @@ const productSchema = new Schema({
     required: true
   },
   photoURLs: [{
-    type: String,
-    required: true
+    imageKey: {type: String},
+    url: {type: String}
   }],
   createdAt: {
     type: Date,

@@ -1,141 +1,82 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef, useCallback } from "react"
-import { Input } from "@/components/ui/input"
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
-
-const initialAds = [
-  {
-    id: 1,
-    image: "/placeholder.svg",
-    title: "Luxury Apartment in Downtown",
-    description: "Spacious 2-bedroom apartment with stunning city views.",
-    price: 2500,
-    location: "New York, NY",
-    category: "Real Estate",
-  },
-  {
-    id: 2,
-    image: "/placeholder.svg",
-    title: "Handcrafted Wooden Furniture",
-    description: "Unique and durable furniture pieces for your home.",
-    price: 500,
-    location: "Los Angeles, CA",
-    category: "Home & Garden",
-  },
-  {
-    id: 3,
-    image: "/placeholder.svg",
-    title: "Vintage Sports Car for Sale",
-    description: "Fully restored 1967 Mustang in excellent condition.",
-    price: 35000,
-    location: "Chicago, IL",
-    category: "Automotive",
-  },
-  {
-    id: 4,
-    image: "/placeholder.svg",
-    title: "Organic Produce Delivery",
-    description: "Fresh, locally-sourced fruits and vegetables delivered weekly.",
-    price: 50,
-    location: "Seattle, WA",
-    category: "Food & Drink",
-  },
-  {
-    id: 5,
-    image: "/placeholder.svg",
-    title: "Handmade Pottery Collection",
-    description: "Unique ceramic pieces crafted by a local artist.",
-    price: 100,
-    location: "Austin, TX",
-    category: "Arts & Crafts",
-  },
-  {
-    id: 6,
-    image: "/placeholder.svg",
-    title: "Vintage Clothing Boutique",
-    description: "Curated selection of high-quality vintage fashion.",
-    price: 75,
-    location: "Portland, OR",
-    category: "Apparel",
-  },
-]
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Input } from "@/components/ui/input";
+import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuCheckboxItem,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import axios from "axios";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator
+} from "@/components/ui/breadcrumb";
+import { CardContent, CardDescription, CardFooter, CardHeader, Card } from "@/components/ui/card";
 
 export default function Adslisting() {
-  const [ads, setAds] = useState(initialAds)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [sortBy, setSortBy] = useState("price")
-  const [filterCategory, setFilterCategory] = useState("")
-  const observerRef = useRef(null)
-
-  const loadMoreAds = useCallback(() => {
-    // Simulate loading more ads from a server
-    const newAds = [
-      {
-        id: ads.length + 1,
-        image: "/placeholder.svg",
-        title: `New Ad ${ads.length + 1}`,
-        description: "Description for new ad.",
-        price: 100 + ads.length * 10,
-        location: "New Location",
-        category: "New Category",
-      },
-      {
-        id: ads.length + 2,
-        image: "/placeholder.svg",
-        title: `New Ad ${ads.length + 2}`,
-        description: "Description for new ad.",
-        price: 200 + ads.length * 10,
-        location: "New Location",
-        category: "New Category",
-      },
-    ]
-    setAds((prevAds) => [...prevAds, ...newAds])
-  }, [ads])
+  const [ads, setAds] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("price");
+  const [filterCategory, setFilterCategory] = useState("");
+  const observerRef = useRef(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          loadMoreAds()
-        }
-      },
-      { threshold: 1 }
-    )
-
-    if (observerRef.current) {
-      observer.observe(observerRef.current)
-    }
-
-    return () => {
-      if (observerRef.current) {
-        observer.unobserve(observerRef.current)
+    const getAds = async () => {
+      try {
+        const response = await axios.get("http://localhost:5100/ads/allads");
+        setAds(response.data);
+      } catch (error) {
+        console.error("Error fetching ads:", error);
       }
-    }
-  }, [loadMoreAds])
+    };
+
+    getAds();
+  }, []);
 
   const filteredAds = ads
     .filter((ad) => {
       return (
         ad.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        (filterCategory === "" || ad.category === filterCategory)
-      )
+        (filterCategory === "" || ad.category.toLowerCase() === filterCategory.toLowerCase())
+      );
     })
     .sort((a, b) => {
       if (sortBy === "price") {
-        return a.price - b.price
+        return a.price - b.price;
       } else if (sortBy === "location") {
-        return a.location.localeCompare(b.location)
+        return a.city.localeCompare(b.city);
       } else {
-        return 0
+        return 0;
       }
-    })
+    });
 
   return (
     <div className="container mx-auto py-8">
+      <div className={"flex flex-auto content-start text-xs m-3"}>
+      </div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Ads Listing</h1>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/adlisting">All Ads</BreadcrumbLink>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         <div className="flex items-center space-x-4">
           <div className="relative">
             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
@@ -164,7 +105,10 @@ export default function Adslisting() {
               <DropdownMenuSeparator />
               <DropdownMenuLabel>Category</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuCheckboxItem checked={filterCategory === ""} onCheckedChange={() => setFilterCategory("")}>
+              <DropdownMenuCheckboxItem
+                checked={filterCategory === ""}
+                onCheckedChange={() => setFilterCategory("")}
+              >
                 All
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
@@ -174,10 +118,10 @@ export default function Adslisting() {
                 Real Estate
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
-                checked={filterCategory === "Home & Garden"}
-                onCheckedChange={() => setFilterCategory("Home & Garden")}
+                checked={filterCategory === "Housing"}
+                onCheckedChange={() => setFilterCategory("Housing")}
               >
-                Home & Garden
+                Housing/Rent
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={filterCategory === "Automotive"}
@@ -191,40 +135,47 @@ export default function Adslisting() {
               >
                 Food & Drink
               </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                checked={filterCategory === "Arts & Crafts"}
-                onCheckedChange={() => setFilterCategory("Arts & Crafts")}
-              >
-                Arts & Crafts
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                checked={filterCategory === "Apparel"}
-                onCheckedChange={() => setFilterCategory("Apparel")}
-              >
-                Apparel
-              </DropdownMenuCheckboxItem>
+
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {filteredAds.map((ad) => (
-          <div key={ad.id} className="bg-background rounded-lg shadow-md overflow-hidden">
-            <img src={ad.image} alt={ad.title} width={400} height={300} className="w-full h-48 object-cover" />
-            <div className="p-4">
-              <h3 className="text-lg font-bold mb-2">{ad.title}</h3>
-              <p className="text-muted-foreground mb-4">{ad.description}</p>
+        {filteredAds.map((ad, index) => (
+          <Card key={index} className="flex flex-col h-full">
+            <CardHeader>
+              <img
+                src={ad.photoURLs[0].url}
+                width="300"
+                height="200"
+                alt="Product 1"
+                className="w-full h-[200px] object-cover rounded-t-lg"
+              />
+            </CardHeader>
+            <CardContent className="p-4 flex-grow">
               <div className="flex items-center justify-between">
-                <div className="text-primary font-bold">${ad.price}</div>
-                <Button size="sm">View Ad</Button>
+                <h3 className="text-lg font-medium">{ad.title}</h3>
+                <span className="text-primary font-medium">${ad.price}.00</span>
               </div>
-            </div>
-          </div>
+              <p className="text-muted-foreground text-sm line-clamp-2">
+                {ad.description}
+              </p>
+            </CardContent>
+            <CardFooter className="mt-auto pt-4">
+              <Button size="sm" className="w-full">
+                <Link href={`/product/${ad._id}`}>
+                  View
+                </Link>
+
+              </Button>
+            </CardFooter>
+          </Card>
+
         ))}
       </div>
       <div ref={observerRef} className="h-4"></div>
     </div>
-  )
+  );
 }
 
 function FilterIcon(props) {
@@ -243,7 +194,7 @@ function FilterIcon(props) {
     >
       <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
     </svg>
-  )
+  );
 }
 
 function SearchIcon(props) {
@@ -263,7 +214,7 @@ function SearchIcon(props) {
       <circle cx="11" cy="11" r="8" />
       <path d="m21 21-4.3-4.3" />
     </svg>
-  )
+  );
 }
 
 function XIcon(props) {
@@ -283,5 +234,5 @@ function XIcon(props) {
       <path d="M18 6 6 18" />
       <path d="m6 6 12 12" />
     </svg>
-  )
+  );
 }

@@ -1,256 +1,331 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/y7wO1u9U98q
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
-
-"use client"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { useEffect, useState } from 'react';
-import { storage } from '@/components/firebase/firebase';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+"use client";
+import {Button} from "@/components/ui/button";
+import {Label} from "@/components/ui/label";
+import {Input} from "@/components/ui/input";
+import {Select, SelectTrigger, SelectValue, SelectContent, SelectItem} from "@/components/ui/select";
+import {Textarea} from "@/components/ui/textarea";
+import {useEffect, useState} from 'react';
+import {storage} from '@/components/firebase/firebase';
+import {ref, uploadBytesResumable, getDownloadURL} from 'firebase/storage';
 import imageCompression from 'browser-image-compression';
-import { useSession } from "@clerk/nextjs"
-import axios from "axios"
+import {useSession} from "@clerk/nextjs";
+import axios from "axios";
+import {Spinner} from "@/components/ui/spinner";
+import {set} from "@firebase/database";
+import {cloudinaryConfig} from '@/components/cloudinary/cloudinary'
+import BZAlert from "@/components/others/bzaltert";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbSeparator
+} from "@/components/ui/breadcrumb";
 
 export default function Component() {
-  const [file, setFile] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [downloadURL, setDownloadURL] = useState('');
-  const [userLoggedIn, setUserLoggedIn] = useState(false);
-  const { session } = useSession();
-
-  //check point for user if they are logged in
-  useEffect(() => {
-    //is user logged in 
-    console.log('user session: ', session)
-    if (session != null && session.user.firstName) {
-      setUserLoggedIn(true);
-    }
-
-  }, [session]);
-
-  /* User ads posting */
-  const [adsData, setAdsData] = useState({
-    isUserLoggedIn: session ? true : false,
-    //optional
-    address: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    description: '',
-    category: '',
-    phoneNumber: '',
-    price: ''
-  })
-
-  const handleFileChange = (e: any) => {
-    setFile(e.target.files[0]);
-  };
-
-  const handleFormChange = (e: any) => {
-    const { name, value } = e.target;
-    setAdsData({
-      ...adsData,
-      [name]: value
-    })
-  }
-
-  const handlePosting = async (e: any) => {
-    e.preventDefault();
-    try{
-      const res = await axios.post('http://localhost:5000/ads/posting', adsData, {
-        headers: {
-          "Content-Length":"multipart/formdata"
+    const server_url = 'http://localhost:5100';
+    const [files, setFiles] = useState([]);
+    const [uploadProgress, setUploadProgress] = useState([]);
+    const [userLoggedIn, setUserLoggedIn] = useState(false);
+    const {session} = useSession();
+    const [saveButton, setSaveButton] = useState(false);
+    const [userId, setUserId] = useState(null);
+    const [spinnerShow, setSpinnerShow] = useState(false);
+    let [photo, setPhotos] = useState([]);
+    const [alert, setAlert] = useState({
+        variant: "",
+        title: "",
+        desc: "",
+        show: null
+    });
+    // Check if user is logged in
+    useEffect(() => {
+        if (session != null && session.user.firstName) {
+            setUserLoggedIn(true);
+            setUserId(session.user.id);
         }
-      })  
-    } catch(error) {
+    }, [session]);
 
-    }
-  };
+    // Initialize adsData state
+    const [adsData, setAdsData] = useState({
+        isUserLoggedIn: !!session,
+        userId: '',
+        title: '',
+        address: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        description: '',
+        category: '',
+        phoneNumber: '',
+        price: '',
+    });
 
-  const handleUpload = async (adsData: string) => {
-    if (!file) return;
-    try {
-      const options = {
-        maxSizeMB: 0.02, // Max file size in MB (20 KB)
-        maxWidthOrHeight: 1920, // Max width/height
-        useWebWorker: true,
-      };
+    // Update adsData when userLoggedIn changes
+    useEffect(() => {
+        setAdsData(prevData => ({
+            ...prevData,
+            isUserLoggedIn: userLoggedIn,
+            userId: userId
+        }));
+    }, [userLoggedIn, userId]);
 
-      const compressedFile = await imageCompression(file, options);
-      const storageRef = ref(storage, `photos/${compressedFile.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, compressedFile);
+    // Handle file change
+    const handleFileChange = (e) => {
+        const selectedFiles = Array.from(e.target.files).slice(0, 3);
+        setFiles(selectedFiles);
+    };
 
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setUploadProgress(progress);
-        },
-        (error) => {
-          console.error('Upload failed:', error);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-            setDownloadURL(url);
-          });
+    // Handle form change
+    const handleFormChange = (e) => {
+        const {name, value} = e.target;
+        setAdsData({
+            ...adsData,
+            [name]: value
+        });
+    };
+
+    // Check if all required fields are filled
+    const allFieldsFilled = () => {
+        for (let key in adsData) {
+            if (adsData[key] === '') {
+                return false;
+            }
         }
-      );
-    } catch (error) {
-      console.error('Compression failed:', error);
-    }
-  };
+        return true
+    };
 
-  if (!userLoggedIn) {
+    // Update save button state based on form validity
+    useEffect(() => {
+        setSaveButton(allFieldsFilled());
+    }, [adsData, files]);
+
+
+    const handleUpload = async () => {
+        let uploadedUrls = [];
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const options = {
+                maxSizeMB: 0.02,
+                maxWidthOrHeight: 1920,
+                useWebWorker: true,
+            };
+
+            try {
+                const compressedFile = await imageCompression(file, options);
+                const formData = new FormData();
+                formData.append('file', compressedFile);
+                formData.append('api_key', cloudinaryConfig.api_key);
+                formData.append('timestamp', Math.floor(Date.now() / 1000));
+                formData.append('folder', cloudinaryConfig.folder);
+
+                // Generate signature
+                const signature = cloudinaryConfig.generateSignature({
+                    timestamp: Math.floor(Date.now() / 1000),
+                    folder: cloudinaryConfig.folder,
+                });
+                formData.append('signature', signature);
+
+                const response = await axios.post(
+                    `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloud_name}/image/upload`,
+                    formData
+                );
+
+                if (response.status === 200) {
+                    const res = response.data;
+                    console.log('Uploaded to Cloudinary:', res);
+                    uploadedUrls.push({url: res.secure_url, imageKey: res.public_id});
+                } else {
+                    console.error('Error uploading to Cloudinary:', response);
+                }
+            } catch (e) {
+                console.error('Error during file upload:', e);
+            }
+        }
+        console.log(uploadedUrls, "from handle upload");
+        await axios.post(`http://localhost:5100/ads/posting/getImageUrls`, {imageData: uploadedUrls});
+    };
+
+
+    // Handle posting ad
+    const handlePosting = async () => {
+        try {
+            setSpinnerShow(true)
+            setTimeout(async () => {
+                await handleUpload();
+                console.log(adsData)
+                const res = await axios.post(`http://localhost:5100/ads/posting`, adsData, {
+                    headers: {
+                        "Content-Type": "application/json",
+                    }
+                });
+                if (res.status === 200) {
+                    setAlert({
+                        variant: "success",
+                        title: "Success",
+                        desc: "Ads uploaded successfully",
+                        show: true
+                    })
+                    console.log('uploaded succesfully')
+                } else {
+                    setAlert({
+                        variant: "error",
+                        title: "Error",
+                        desc: "Something happened. Please try again",
+                        show: true
+                    })
+                    console.log('nothing happended')
+                }
+                setSpinnerShow(false)
+                handleDiscard()
+            }, 2000)
+
+        } catch (error) {
+            console.log(error)
+        }
+    };
+
+
+    const handleDiscard = () => {
+        try {
+            setAdsData({
+                isUserLoggedIn: !!session,
+                userId: '',
+                title: '',
+                address: '',
+                city: '',
+                state: '',
+                zipCode: '',
+                description: '',
+                category: '',
+                phoneNumber: '',
+                price: '',
+            })
+        } catch (error) {
+
+        }
+    }
+
+    if (!userLoggedIn) {
+        return (
+            <div>
+                <Spinner></Spinner>
+            </div>
+        );
+    }
+
     return (
-      <div>
-        <div>
-          <h1>Sorry sir/mam you are not logged in to use this service</h1>
-        </div>
-      </div>
-    )
-  }
+        <div className="max-w-4xl mx-auto p-6 sm:p-8 md:p-10">
+            <div className="content-center text-sa">
+                <Spinner size={"large"} show={spinnerShow}></Spinner>
+                <BZAlert variant={alert.variant} title={alert.title} desc={alert.desc} show={alert.show}></BZAlert>
+            </div>
+            <div className="flex items-center justify-between mb-6 sm:mb-8">
+                <Breadcrumb>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator/>
+                        <BreadcrumbItem>
+                            <BreadcrumbLink href={`/postlisting`}>Post Ad</BreadcrumbLink>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
+                <div className="flex gap-2">
+                    <Button variant="outline" onClick={handleDiscard}>Discard</Button>
+                    <Button onClick={handlePosting} disabled={!saveButton}>Post Ad</Button>
+                </div>
+            </div>
+            <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid gap-4">
+                    <div className="grid gap-2">
+                        <Label htmlFor="title" className="text-sm font-medium">
+                            Title
+                        </Label>
+                        <Input id="title" name="title" placeholder="Ad title" value={adsData.title}
+                               onChange={handleFormChange} required/>
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="address" className="text-sm font-medium">
+                            Address
+                        </Label>
+                        <Input id="address" name="address" placeholder="123 Main St" value={adsData.address}
+                               onChange={handleFormChange} required/>
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="city" className="text-sm font-medium">
+                            City
+                        </Label>
+                        <Input id="city" name="city" placeholder="New York" value={adsData.city}
+                               onChange={handleFormChange} required/>
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="state" className="text-sm font-medium">
+                            State
+                        </Label>
+                        <Input id="state" name="state" placeholder="CA" value={adsData.state}
+                               onChange={handleFormChange} required/>
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="zipCode" className="text-sm font-medium">
+                            Zip Code
+                        </Label>
+                        <Input id="zipCode" name="zipCode" placeholder="94101" value={adsData.zipCode}
+                               onChange={handleFormChange} required/>
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="phoneNumber" className="text-sm font-medium">
+                            Phone Number
+                        </Label>
+                        <Input id="phoneNumber" type="number" name="phoneNumber" placeholder="+1"
+                               value={adsData.phoneNumber} onChange={handleFormChange} required/>
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="category" className="text-sm font-medium">
+                            Category
+                        </Label>
+                        <Select id="category" name="category" value={adsData.category}
+                                onValueChange={(value) => handleFormChange({target: {name: 'category', value}})}
+                                required>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="real estate">Real Estate</SelectItem>
+                                <SelectItem value="housing">Housing/Rent</SelectItem>
+                                <SelectItem value="automotive">Automotive</SelectItem>
+                                <SelectItem value="food & drinks">Food & Drinks</SelectItem>
+                                <SelectItem value="others">Others</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="price" className="text-sm font-medium">
+                            Price
+                        </Label>
+                        <Input id="price" type="number" name="price" placeholder="$500,000" value={adsData.price}
+                               onChange={handleFormChange} required/>
+                    </div>
+                </div>
+                <div className="grid gap-4">
+                    <div className="grid gap-2">
+                        <Label htmlFor="description" className="text-sm font-medium">
+                            Description
+                        </Label>
+                        <Textarea id="description" name="description" rows={5} placeholder="Describe your property..."
+                                  value={adsData.description} onChange={handleFormChange} required/>
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="images" className="text-sm font-medium">
+                            Upload Images (up to 3)
+                        </Label>
+                        <Input id="images" type="file" multiple onChange={handleFileChange} required/>
+                    </div>
+                </div>
 
-  return (
-    <div className="max-w-4xl mx-auto p-6 sm:p-8 md:p-10">
-      <div className="flex items-center justify-between mb-6 sm:mb-8">
-        <h1 className="text-3xl font-bold">Add Listing</h1>
-        <div className="flex gap-2">
-          <Button variant="outline">Discard</Button>
-          <Button onClick={handlePosting}>Save Listing</Button>
+            </form>
         </div>
-      </div>
-      <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="grid gap-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="address" className="text-sm font-medium">
-                Address
-              </Label>
-              <Input id="address" placeholder="123 Main St" value={adsData.address} name="address" onChange={handleFormChange} required/>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="city" className="text-sm font-medium">
-                City
-              </Label>
-              <Input id="city" placeholder="San Francisco"
-                name="city"
-                value={adsData.city}
-                onChange={handleFormChange}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="state" className="text-sm font-medium">
-                State
-              </Label>
-              <Input id="state" placeholder="CA"
-                name="state"
-                value={adsData.state}
-                onChange={handleFormChange}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="zip" className="text-sm font-medium">
-                Zip Code
-              </Label>
-              <Input id="zip" placeholder="94101"
-                name="zipCode"
-                value={adsData.zipCode}
-                onChange={handleFormChange}
-              />
-            </div>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="phoneNumber" className="text-sm font-medium">
-              Phone Number
-            </Label>
-            <Input id="phoneNumber" type="number" placeholder="+1"
-              name="phoneNumber"
-              value={adsData.phoneNumber}
-              onChange={handleFormChange}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="bedrooms" className="text-sm font-medium">
-              Category
-            </Label>
-            <Select id="categories"
-              name="categories"
-              value={adsData.category}
-              onValueChange={handleFormChange}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">Electronics</SelectItem>
-                <SelectItem value="2">Fasion</SelectItem>
-                <SelectItem value="3">Housing</SelectItem>
-                <SelectItem value="4">Beauty</SelectItem>
-                <SelectItem value="5">Others</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          {/* <div className="grid gap-2">
-            <Label htmlFor="bathrooms" className="text-sm font-medium">
-              Bathrooms
-            </Label>
-            <Select id="bathrooms">
-              <SelectTrigger>
-                <SelectValue placeholder="Select" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">1</SelectItem>
-                <SelectItem value="2">2</SelectItem>
-                <SelectItem value="3">3</SelectItem>
-                <SelectItem value="4">4</SelectItem>
-                <SelectItem value="5">5+</SelectItem>
-              </SelectContent>
-            </Select>
-          </div> */}
-          {/* <div className="grid gap-2">
-            <Label htmlFor="square-footage" className="text-sm font-medium">
-              Square Footage
-            </Label>
-            <Input id="square-footage" type="number" placeholder="2,000" />
-          </div> */}
-          <div className="grid gap-2">
-            <Label htmlFor="price" className="text-sm font-medium">
-              Price
-            </Label>
-            <Input id="price" type="number" placeholder="$500,000"
-              name="price"
-              value={adsData.price}
-              onChange={handleFormChange}
-            />
-          </div>
-        </div>
-        <div className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="description" className="text-sm font-medium">
-              Description
-            </Label>
-            <Textarea id="description" rows={5} placeholder="Describe your property..."
-              name="description"
-              value={adsData.description}
-              onChange={handleFormChange}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="images" className="text-sm font-medium">
-              Upload Images
-            </Label>
-            <Input id="images" type="file" onChange={handleFileChange} multiple />
-          </div>
-        </div>
-      </form>
-    </div>
-  )
+    );
 }

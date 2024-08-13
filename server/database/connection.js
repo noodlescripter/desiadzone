@@ -2,7 +2,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 
 async function database_conn(){
-    const URI = process.env.MONGO_URI;
+    const URI = process.env.MONGO_URI || "mongodb://build4docker:build4docker@localhost:27017/banglabazaar"
     try{
         if(!URI){
             throw new Error('MONGO_URI environment variable is not set.');

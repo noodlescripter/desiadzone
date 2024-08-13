@@ -1,11 +1,24 @@
+"use client"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu"
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card"
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function LandingPage() {
+      const [featuredProducts, setFeaturedProducts] = useState([])
+      useEffect(() => {
+            const getProduct = async function () {
+                  const res = await axios.get(`http://localhost:5100/ads/allads`);
+                  if (res) {
+                        setFeaturedProducts(res.data);
+                  }
+            }
+            getProduct()
+      }, []);
       return (
             <main className="flex-1">
                   <section className="w-full py-12 md:py-24 lg:py-32">
@@ -24,9 +37,10 @@ export default function LandingPage() {
                                                 <Button size="sm">Explore Products</Button>
                                           </Link>
 
-                                          <Button variant="outline" size="sm">
-                                                Post an Ad
-                                          </Button>
+                                          <Link href={"/postlisting"}>
+                                                <Button variant="outline" size="sm">
+                                                      Post an Ad
+                                                </Button></Link>
                                     </div>
                               </div>
                               <div>
@@ -78,20 +92,20 @@ export default function LandingPage() {
                                     </div>
                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                                           <Link
-                                                href="#"
+                                                href="/product/category/automotive"
                                                 className="group flex flex-col items-center justify-center gap-2 rounded-lg bg-background p-4 hover:bg-accent hover:text-accent-foreground"
                                                 prefetch={false}
                                           >
-                                                <CircuitBoardIcon className="h-8 w-8" />
-                                                <span className="text-sm font-medium group-hover:underline">Electronics</span>
+                                                <AutomotiveIcon className="h-8 w-8" />
+                                                <span className="text-sm font-medium group-hover:underline">Automotive</span>
                                           </Link>
                                           <Link
                                                 href="#"
                                                 className="group flex flex-col items-center justify-center gap-2 rounded-lg bg-background p-4 hover:bg-accent hover:text-accent-foreground"
                                                 prefetch={false}
                                           >
-                                                <MusicIcon className="h-8 w-8" />
-                                                <span className="text-sm font-medium group-hover:underline">Fashion</span>
+                                                <HousingRentIcon className="h-8 w-8" />
+                                                <span className="text-sm font-medium group-hover:underline">Rent</span>
                                           </Link>
                                           <Link
                                                 href="#"
@@ -99,32 +113,35 @@ export default function LandingPage() {
                                                 prefetch={false}
                                           >
                                                 <HomeIcon className="h-8 w-8" />
-                                                <span className="text-sm font-medium group-hover:underline">Home</span>
+                                                <span className="text-sm font-medium group-hover:underline">Real Estate</span>
                                           </Link>
                                           <Link
                                                 href="#"
                                                 className="group flex flex-col items-center justify-center gap-2 rounded-lg bg-background p-4 hover:bg-accent hover:text-accent-foreground"
                                                 prefetch={false}
                                           >
-                                                <ClubIcon className="h-8 w-8" />
-                                                <span className="text-sm font-medium group-hover:underline">Sports</span>
+                                                <FoodIcon className="h-8 w-8" />
+                                                <span className="text-sm font-medium group-hover:underline">Foods</span>
                                           </Link>
+                                    
                                           <Link
                                                 href="#"
                                                 className="group flex flex-col items-center justify-center gap-2 rounded-lg bg-background p-4 hover:bg-accent hover:text-accent-foreground"
                                                 prefetch={false}
                                           >
-                                                <GemIcon className="h-8 w-8" />
-                                                <span className="text-sm font-medium group-hover:underline">Beauty</span>
+                                                <JobIcon className="h-8 w-8" />
+                                                <span className="text-sm font-medium group-hover:underline">Jobs</span>
                                           </Link>
+
                                           <Link
                                                 href="#"
                                                 className="group flex flex-col items-center justify-center gap-2 rounded-lg bg-background p-4 hover:bg-accent hover:text-accent-foreground"
                                                 prefetch={false}
                                           >
-                                                <ToyBrickIcon className="h-8 w-8" />
-                                                <span className="text-sm font-medium group-hover:underline">Toys</span>
+                                                <AllIcon className="h-8 w-8" />
+                                                <span className="text-sm font-medium group-hover:underline">All Other</span>
                                           </Link>
+                              
                                     </div>
                               </div>
                         </div>
@@ -138,133 +155,40 @@ export default function LandingPage() {
                                                 Discover our top-selling and most popular products.
                                           </p>
                                     </div>
-                                    {/* <div className="flex items-center gap-2 w-full">
-                                          <div className="flex-1">
-                                                <Input
-                                                      type="search"
-                                                      placeholder="Search products..."
-                                                      className="w-full rounded-lg bg-background pl-8"
-                                                />
-                                          </div>
-                                          <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                      <Button variant="outline" size="sm" className="h-10 gap-1">
-                                                            <FilterIcon className="h-4 w-4" />
-                                                            <span>Filter</span>
-                                                      </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                      <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-                                                      <DropdownMenuSeparator />
-                                                      <DropdownMenuCheckboxItem checked>Price: Low to High</DropdownMenuCheckboxItem>
-                                                      <DropdownMenuCheckboxItem>Price: High to Low</DropdownMenuCheckboxItem>
-                                                      <DropdownMenuCheckboxItem>Newest First</DropdownMenuCheckboxItem>
-                                                      <DropdownMenuCheckboxItem>Oldest First</DropdownMenuCheckboxItem>
-                                                </DropdownMenuContent>
-                                          </DropdownMenu>
-                                    </div> */}
+
                               </div>
                               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
-                                    <Card>
-                                          <CardHeader>
-                                                <img
-                                                      src="/placeholder.svg"
-                                                      width="300"
-                                                      height="200"
-                                                      alt="Product 1"
-                                                      className="w-full h-[200px] object-cover rounded-t-lg"
-                                                />
-                                          </CardHeader>
-                                          <CardContent className="p-4">
-                                                <div className="flex items-center justify-between">
-                                                      <h3 className="text-lg font-medium">Product 1</h3>
-                                                      <span className="text-primary font-medium">$49.99</span>
-                                                </div>
-                                                <p className="text-muted-foreground text-sm line-clamp-2">
-                                                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                                                </p>
-                                          </CardContent>
-                                          <CardFooter className="pt-4">
-                                                <Button size="sm" className="w-full">
-                                                      Add to Cart
-                                                </Button>
-                                          </CardFooter>
-                                    </Card>
-                                    <Card>
-                                          <CardHeader>
-                                                <img
-                                                      src="/placeholder.svg"
-                                                      width="300"
-                                                      height="200"
-                                                      alt="Product 2"
-                                                      className="w-full h-[200px] object-cover rounded-t-lg"
-                                                />
-                                          </CardHeader>
-                                          <CardContent className="p-4">
-                                                <div className="flex items-center justify-between">
-                                                      <h3 className="text-lg font-medium">Product 2</h3>
-                                                      <span className="text-primary font-medium">$99.99</span>
-                                                </div>
-                                                <p className="text-muted-foreground text-sm line-clamp-2">
-                                                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                                                </p>
-                                          </CardContent>
-                                          <CardFooter className="pt-4">
-                                                <Button size="sm" className="w-full">
-                                                      Add to Cart
-                                                </Button>
-                                          </CardFooter>
-                                    </Card>
-                                    <Card>
-                                          <CardHeader>
-                                                <img
-                                                      src="/placeholder.svg"
-                                                      width="300"
-                                                      height="200"
-                                                      alt="Product 3"
-                                                      className="w-full h-[200px] object-cover rounded-t-lg"
-                                                />
-                                          </CardHeader>
-                                          <CardContent className="p-4">
-                                                <div className="flex items-center justify-between">
-                                                      <h3 className="text-lg font-medium">Product 3</h3>
-                                                      <span className="text-primary font-medium">$24.99</span>
-                                                </div>
-                                                <p className="text-muted-foreground text-sm line-clamp-2">
-                                                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                                                </p>
-                                          </CardContent>
-                                          <CardFooter className="pt-4">
-                                                <Button size="sm" className="w-full">
-                                                      Add to Cart
-                                                </Button>
-                                          </CardFooter>
-                                    </Card>
-                                    <Card>
-                                          <CardHeader>
-                                                <img
-                                                      src="/placeholder.svg"
-                                                      width="300"
-                                                      height="200"
-                                                      alt="Product 4"
-                                                      className="w-full h-[200px] object-cover rounded-t-lg"
-                                                />
-                                          </CardHeader>
-                                          <CardContent className="p-4">
-                                                <div className="flex items-center justify-between">
-                                                      <h3 className="text-lg font-medium">Product 4</h3>
-                                                      <span className="text-primary font-medium">$79.99</span>
-                                                </div>
-                                                <p className="text-muted-foreground text-sm line-clamp-2">
-                                                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                                                </p>
-                                          </CardContent>
-                                          <CardFooter className="pt-4">
-                                                <Button size="sm" className="w-full">
-                                                      Add to Cart
-                                                </Button>
-                                          </CardFooter>
-                                    </Card>
+                                    {
+                                          featuredProducts.slice(0, 4).map((product, index) => (
+                                                <>
+                                                      <Card key={index}>
+                                                            <CardHeader>
+                                                                  <img
+                                                                        src={product.photoURLs[0].url}
+                                                                        width="300"
+                                                                        height="200"
+                                                                        alt="Product 1"
+                                                                        className="w-full h-[200px] object-cover rounded-t-lg"
+                                                                  />
+                                                            </CardHeader>
+                                                            <CardContent className="p-4">
+                                                                  <div className="flex items-center justify-between">
+                                                                        <h3 className="text-lg font-medium">{product.title}</h3>
+                                                                        <span className="text-primary font-medium">${product.price}</span>
+                                                                  </div>
+                                                                  <p className="text-muted-foreground text-sm line-clamp-2">
+                                                                        {product.description}
+                                                                  </p>
+                                                            </CardContent>
+                                                            <CardFooter className="pt-4">
+                                                                  <Button size="sm" className="w-full">
+                                                                        View Product
+                                                                  </Button>
+                                                            </CardFooter>
+                                                      </Card>
+                                                </>
+                                          ))
+                                    }
                               </div>
                         </div>
                   </section>
@@ -462,4 +386,32 @@ function XIcon(props) {
                   <path d="m6 6 12 12" />
             </svg>
       )
+}
+
+function JobIcon(props){
+      return (
+            <svg {...props} xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M160-120q-33 0-56.5-23.5T80-200v-440q0-33 23.5-56.5T160-720h160v-80q0-33 23.5-56.5T400-880h160q33 0 56.5 23.5T640-800v80h160q33 0 56.5 23.5T880-640v440q0 33-23.5 56.5T800-120H160Zm0-80h640v-440H160v440Zm240-520h160v-80H400v80ZM160-200v-440 440Z"/></svg>
+      )
+}
+
+function AllIcon(props){
+      return (
+            <svg {...props} xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M200-200h80v-80h-80v80Zm160 0h80v-80h-80v80Zm160 0h80v-80h-80v80Zm160 0h80v-80h-80v80ZM200-680h80v-80h-80v80Zm0 160h80v-80h-80v80Zm0 160h80v-80h-80v80Zm160-320h80v-80h-80v80Zm0 160h80v-80h-80v80Zm0 160h80v-80h-80v80Zm160-320h80v-80h-80v80Zm0 160h80v-80h-80v80Zm0 160h80v-80h-80v80Zm160-320h80v-80h-80v80Zm0 160h80v-80h-80v80Zm0 160h80v-80h-80v80ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Z"/></svg>
+      )
+}
+
+function FoodIcon(props){
+      return (
+            <svg{...props} xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M280-80v-366q-51-14-85.5-56T160-600v-280h80v280h40v-280h80v280h40v-280h80v280q0 56-34.5 98T360-446v366h-80Zm400 0v-320H560v-280q0-83 58.5-141.5T760-880v800h-80Z"/></svg>
+      )
+}
+
+function HousingRentIcon(props){
+      return (
+            <svg {...props} xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M120-120v-560h160v-160h400v320h160v400H520v-160h-80v160H120Zm80-80h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm160 160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm160 320h80v-80h-80v80Zm0-160h80v-80h-80v80Zm0-160h80v-80h-80v80Zm160 480h80v-80h-80v80Zm0-160h80v-80h-80v80Z"/></svg>
+      )
+}
+function AutomotiveIcon(props) {
+      return (
+<svg {...props}xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M240-200v40q0 17-11.5 28.5T200-120h-40q-17 0-28.5-11.5T120-160v-320l84-240q6-18 21.5-29t34.5-11h440q19 0 34.5 11t21.5 29l84 240v320q0 17-11.5 28.5T800-120h-40q-17 0-28.5-11.5T720-160v-40H240Zm-8-360h496l-42-120H274l-42 120Zm-32 80v200-200Zm100 160q25 0 42.5-17.5T360-380q0-25-17.5-42.5T300-440q-25 0-42.5 17.5T240-380q0 25 17.5 42.5T300-320Zm360 0q25 0 42.5-17.5T720-380q0-25-17.5-42.5T660-440q-25 0-42.5 17.5T600-380q0 25 17.5 42.5T660-320Zm-460 40h560v-200H200v200Z"/></svg>      )
 }
