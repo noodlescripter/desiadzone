@@ -126,11 +126,14 @@ export default function Component() {
             };
 
             try {
+                const now = new Date();
+                const formattedTimestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
                 const compressedFile = await imageCompression(file, options);
                 const formData = new FormData();
                 formData.append('file', compressedFile);
                 formData.append('api_key', cloudinaryConfig.api_key);
-                formData.append('timestamp', Math.floor(Date.now() / 1000));
+                formData.append('timestamp', formattedTimestamp);
                 formData.append('folder', cloudinaryConfig.folder);
 
                 // Generate signature
@@ -325,7 +328,7 @@ export default function Component() {
                         <Label htmlFor="category" className="text-sm font-medium">
                             Category
                         </Label>
-                        <Select id="category" name="category" value={adsData.category}
+                        <Select name="category" value={adsData.category}
                             onValueChange={(value) => handleFormChange({ target: { name: 'category', value } })}
                             required>
                             <SelectTrigger>
