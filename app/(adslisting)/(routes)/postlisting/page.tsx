@@ -114,7 +114,7 @@ export default function Component() {
 
     const handleUpload = async () => {
         let uploadedUrls = [];
-        const presetName = 'your_unsigned_preset_name'; // Replace with your preset name from Cloudinary
+        const presetName = 'ml_default'; // Replace with your preset name from Cloudinary
     
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
