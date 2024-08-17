@@ -1,18 +1,18 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { useEffect, useState } from 'react';
-import { storage } from '@/components/firebase/firebase';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import {Button} from "@/components/ui/button";
+import {Label} from "@/components/ui/label";
+import {Input} from "@/components/ui/input";
+import {Select, SelectTrigger, SelectValue, SelectContent, SelectItem} from "@/components/ui/select";
+import {Textarea} from "@/components/ui/textarea";
+import {useEffect, useState} from 'react';
+import {storage} from '@/components/firebase/firebase';
+import {ref, uploadBytesResumable, getDownloadURL} from 'firebase/storage';
 import imageCompression from 'browser-image-compression';
-import { useSession } from "@clerk/nextjs";
+import {useSession} from "@clerk/nextjs";
 import axios from "axios";
-import { Spinner } from "@/components/ui/spinner";
-import { set } from "@firebase/database";
-import { cloudinaryConfig } from '@/components/cloudinary/cloudinary'
+import {Spinner} from "@/components/ui/spinner";
+import {set} from "@firebase/database";
+import {cloudinaryConfig} from '@/components/cloudinary/cloudinary'
 import BZAlert from "@/components/others/bzaltert";
 import {
     Breadcrumb,
@@ -27,7 +27,7 @@ export default function Component() {
     const [files, setFiles] = useState([]);
     const [uploadProgress, setUploadProgress] = useState([]);
     const [userLoggedIn, setUserLoggedIn] = useState(false);
-    const { session } = useSession();
+    const {session} = useSession();
     const [saveButton, setSaveButton] = useState(false);
     const [userId, setUserId] = useState(null);
     const [spinnerShow, setSpinnerShow] = useState(false);
@@ -75,7 +75,7 @@ export default function Component() {
             ...prevData,
             isUserLoggedIn: userLoggedIn,
             userId: userId,
-            email: email,
+            email:  email,
             userName: userName
         }));
     }, [userLoggedIn, userId, email, userName]);
@@ -88,7 +88,7 @@ export default function Component() {
 
     // Handle form change
     const handleFormChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setAdsData({
             ...adsData,
             [name]: value
@@ -113,7 +113,7 @@ export default function Component() {
 
     const handleUpload = async () => {
         let uploadedUrls = [];
-
+    
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             const options = {
@@ -121,30 +121,32 @@ export default function Component() {
                 maxWidthOrHeight: 1920,
                 useWebWorker: true,
             };
-
+    
             try {
-                const now = new Date();
-                const formattedTimestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-
+                const time = Math.floor(Date.now() / 1000);
+                console.log('Timestamp:', time); // Debugging line
+    
                 const compressedFile = await imageCompression(file, options);
                 const formData = new FormData();
                 formData.append('file', compressedFile);
                 formData.append('api_key', cloudinaryConfig.api_key);
-                formData.append('timestamp', formattedTimestamp);
+    
+                // Convert time to string before appending
+                formData.append('timestamp', time.toString());
                 formData.append('folder', cloudinaryConfig.folder);
-
-                // Generate signature
+    
+                // Generate signature (assuming it's done server-side)
                 const signature = cloudinaryConfig.generateSignature({
-                    timestamp: Math.floor(Date.now() / 1000),
+                    timestamp: time,
                     folder: cloudinaryConfig.folder,
                 });
                 formData.append('signature', signature);
-
+    
                 const response = await axios.post(
                     `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloud_name}/image/upload`,
                     formData
                 );
-
+    
                 if (response.status === 200) {
                     const res = response.data;
                     console.log('Uploaded to Cloudinary:', res);
@@ -156,10 +158,17 @@ export default function Component() {
                 console.error('Error during file upload:', e);
             }
         }
+    
         console.log(uploadedUrls, "from handle upload");
-        await axios.post(`${server_url}/ads/posting/getImageUrls`, { imageData: uploadedUrls });
+    
+        // Send the uploaded URLs to your server
+        try {
+            await axios.post(`${server_url}/ads/posting/getImageUrls`, { imageData: uploadedUrls });
+        } catch (error) {
+            console.error('Error posting image URLs to server:', error);
+        }
     };
-
+    
 
     // Handle posting ad
     const handlePosting = async () => {
@@ -230,7 +239,7 @@ export default function Component() {
         );
     }
 
-
+    
 
     return (
         <div className="container shadow-2xl max-w-4xl mx-auto p-6 sm:p-8 md:p-10 mt-10 mb-10">
@@ -244,11 +253,11 @@ export default function Component() {
                         <BreadcrumbItem>
                             <BreadcrumbLink href="/">Home</BreadcrumbLink>
                         </BreadcrumbItem>
-                        <BreadcrumbSeparator />
+                        <BreadcrumbSeparator/>
                         <BreadcrumbItem>
                             <BreadcrumbLink href="/adlisting">All Ads</BreadcrumbLink>
                         </BreadcrumbItem>
-                        <BreadcrumbSeparator />
+                        <BreadcrumbSeparator/>
                         <BreadcrumbItem>
                             <BreadcrumbLink href={`/postlisting`}>Post Ad</BreadcrumbLink>
                         </BreadcrumbItem>
@@ -266,52 +275,52 @@ export default function Component() {
                             Title
                         </Label>
                         <Input id="title" name="title" placeholder="Ad title" value={adsData.title}
-                            onChange={handleFormChange} required />
+                               onChange={handleFormChange} required/>
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="address" className="text-sm font-medium">
                             Address
                         </Label>
                         <Input id="address" name="address" placeholder="123 Main St" value={adsData.address}
-                            onChange={handleFormChange} required />
+                               onChange={handleFormChange} required/>
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="city" className="text-sm font-medium">
                             City
                         </Label>
                         <Input id="city" name="city" placeholder="New York" value={adsData.city}
-                            onChange={handleFormChange} required />
+                               onChange={handleFormChange} required/>
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="state" className="text-sm font-medium">
                             State
                         </Label>
                         <Input id="state" name="state" placeholder="CA" value={adsData.state}
-                            onChange={handleFormChange} required />
+                               onChange={handleFormChange} required/>
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="zipCode" className="text-sm font-medium">
                             Zip Code
                         </Label>
                         <Input id="zipCode" name="zipCode" placeholder="94101" value={adsData.zipCode}
-                            onChange={handleFormChange} required />
+                               onChange={handleFormChange} required/>
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="phoneNumber" className="text-sm font-medium">
                             Phone Number
                         </Label>
                         <Input id="phoneNumber" type="number" name="phoneNumber" placeholder="+1"
-                            value={adsData.phoneNumber} onChange={handleFormChange} required />
+                               value={adsData.phoneNumber} onChange={handleFormChange} required/>
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="category" className="text-sm font-medium">
                             Category
                         </Label>
                         <Select name="category" value={adsData.category}
-                            onValueChange={(value) => handleFormChange({ target: { name: 'category', value } })}
-                            required>
+                                onValueChange={(value) => handleFormChange({target: {name: 'category', value}})}
+                                required>
                             <SelectTrigger>
-                                <SelectValue placeholder="Select" />
+                                <SelectValue placeholder="Select"/>
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="realestate">Real Estate</SelectItem>
@@ -327,7 +336,7 @@ export default function Component() {
                             Price
                         </Label>
                         <Input id="price" type="number" name="price" placeholder="$500,000" value={adsData.price}
-                            onChange={handleFormChange} required />
+                               onChange={handleFormChange} required/>
                     </div>
                 </div>
                 <div className="grid gap-4">
@@ -336,13 +345,13 @@ export default function Component() {
                             Description
                         </Label>
                         <Textarea id="description" name="description" rows={5} placeholder="Describe your property..."
-                            value={adsData.description} onChange={handleFormChange} required />
+                                  value={adsData.description} onChange={handleFormChange} required/>
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="images" className="text-sm font-medium">
                             Upload Images (up to 3)
                         </Label>
-                        <Input id="images" type="file" multiple onChange={handleFileChange} required />
+                        <Input id="images" type="file" multiple onChange={handleFileChange} required/>
                     </div>
                 </div>
 
