@@ -53,7 +53,7 @@ export default function LandingPage() {
                                                 {
                                                       featuredProducts.map((product, index) => (
 
-                                                            <CarouselItem>
+                                                            <CarouselItem key={index}>
                                                                   <img
                                                                         src={product.photoURLs[0].url}
                                                                         width="800"

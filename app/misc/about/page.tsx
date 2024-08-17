@@ -1,10 +1,3 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/WJTQzeSwK6b
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-
 export default function Component() {
     return (
         <div className="w-full py-16">
