@@ -114,6 +114,7 @@ export default function Component() {
 
     const handleUpload = async () => {
         let uploadedUrls = [];
+        const presetName = 'your_unsigned_preset_name'; // Replace with your preset name from Cloudinary
     
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -124,27 +125,16 @@ export default function Component() {
             };
     
             try {
-                const timestamp = Math.floor(Date.now() / 1000); // Use Unix timestamp
-                const folder = 'bangla-bazaar/uploads';
-    
                 // Compress the image file
                 const compressedFile = await imageCompression(file, options);
     
-                // Generate the signature on the server
-                const stringToSign = `folder=${folder}&timestamp=${timestamp}`;
-                const signature = crypto
-                    .createHash('sha1')
-                    .update(stringToSign + process.env.NEXT_CLOUDINARY_API_SECRET)
-                    .digest('hex');
-    
-                // Create the FormData object
+                // Create the FormData object for unsigned upload
                 const formData = new FormData();
                 formData.append('file', compressedFile);
-                formData.append('api_key', cloudinaryConfig.api_key);
-                formData.append('timestamp', timestamp.toString());
-                formData.append('folder', folder);
-                formData.append('signature', signature);
+                formData.append('upload_preset', presetName); // Use the unsigned upload preset
+                formData.append('folder', 'bangla-bazaar/uploads'); // Optional: Specify folder
     
+                // Upload the file to Cloudinary
                 const response = await axios.post(
                     `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloud_name}/image/upload`,
                     formData
@@ -171,6 +161,7 @@ export default function Component() {
             console.error('Error posting image URLs to server:', error);
         }
     };
+    
     
     
 
