@@ -30,11 +30,12 @@ export default function Adslisting() {
   const [sortBy, setSortBy] = useState("price");
   const [filterCategory, setFilterCategory] = useState("");
   const observerRef = useRef(null);
+  const URL = process.env.BACK_END_URL;
 
   useEffect(() => {
     const getAds = async () => {
       try {
-        const response = await axios.get("http://localhost:5100/ads/allads");
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACK_END_URL}/ads/allads`);
         setAds(response.data);
       } catch (error) {
         console.error("Error fetching ads:", error);
@@ -61,15 +62,27 @@ export default function Adslisting() {
       }
     });
 
+  function HomeIcon(props: any) {
+    return (
+      <svg {...props} xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M240-200h120v-240h240v240h120v-360L480-740 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z" /></svg>
+    )
+  }
+
+  function ListIcon(props: any) {
+    return (
+      <svg {...props} xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M280-600v-80h560v80H280Zm0 160v-80h560v80H280Zm0 160v-80h560v80H280ZM160-600q-17 0-28.5-11.5T120-640q0-17 11.5-28.5T160-680q17 0 28.5 11.5T200-640q0 17-11.5 28.5T160-600Zm0 160q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520q17 0 28.5 11.5T200-480q0 17-11.5 28.5T160-440Zm0 160q-17 0-28.5-11.5T120-320q0-17 11.5-28.5T160-360q17 0 28.5 11.5T200-320q0 17-11.5 28.5T160-280Z" /></svg>
+    )
+  }
+
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto px-8 py-8">
       <div className={"flex flex-auto content-start text-xs m-3"}>
       </div>
       <div className="flex items-center justify-between mb-6">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+              <BreadcrumbLink className="p-2" href="/"><HomeIcon></HomeIcon></BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
@@ -140,36 +153,69 @@ export default function Adslisting() {
           </DropdownMenu>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pb-10">
         {filteredAds.map((ad, index) => (
-          <Card key={index} className="flex flex-col h-full">
-            <CardHeader>
-              <img
-                src={ad.photoURLs[0].url}
-                width="300"
-                height="200"
-                alt="Product 1"
-                className="w-full h-[200px] object-cover rounded-t-lg"
-              />
-            </CardHeader>
-            <CardContent className="p-4 flex-grow">
+          <Card key={index} className="bg-white rounded-3xl overflow-hidden shadow-2xl">
+            <img
+              src={ad.photoURLs[0].url}
+              alt={ad.title}
+              width={400}
+              height={300}
+              className="object-cover w-full h-48"
+              style={{ aspectRatio: "400/300", objectFit: "cover" }}
+            />
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">{ad.title}</h3>
+                <h2 className="font-bold mb-2">{ad.title}</h2>
                 <span className="text-primary font-medium">${ad.price}.00</span>
               </div>
-              <p className="text-muted-foreground text-sm line-clamp-2">
-                {ad.description}
-              </p>
+              <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">{ad.description}</p>
+              <div className="flex items-center justify-between">
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${ad.status === "Active"
+                    ? "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400"
+                    : "bg-red-100 text-red-600 dark:text-red-400"
+                    }`}
+                >
+                  {ad.status}
+                </span>
+                <div className="flex gap-2">
+                  <Link href={`/product/${ad._id}`} className="w-full">
+                    <Button size="sm" variant="default" color="red" className="rounded-2xl">
+                      View
+                    </Button>
+                  </Link>
+                </div>
+              </div>
             </CardContent>
-            <CardFooter className="mt-auto pt-4">
-              <Button size="sm" className="w-full">
-                <Link href={`/product/${ad._id}`}>
-                  View
-                </Link>
-
-              </Button>
-            </CardFooter>
           </Card>
+
+
+          /*  <Card key={index} className="flex flex-col h-full">
+             <CardHeader>
+               <img
+                 src={ad.photoURLs[0].url}
+                 width="300"
+                 height="200"
+                 alt="Product 1"
+                 className="w-full h-[200px] object-cover rounded-t-lg"
+               />
+             </CardHeader>
+             <CardContent className="p-4 flex-grow">
+               <div className="flex items-center justify-between">
+                 <h3 className="text-lg font-medium">{ad.title}</h3>
+                 <span className="text-primary font-medium">${ad.price}.00</span>
+               </div>
+               <p className="text-muted-foreground text-sm line-clamp-2">
+                 {ad.description}
+               </p>
+             </CardContent>
+             <CardFooter className="mt-auto pt-4">
+               <Link className="w-full" href={`/product/${ad._id}`}>
+                 <Button className="sm w-full">View</Button>
+               </Link>
+             </CardFooter>
+           </Card> */
 
         ))}
       </div>

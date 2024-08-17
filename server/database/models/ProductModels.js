@@ -50,6 +50,18 @@ const productSchema = new Schema({
   phoneNumber: {
     type: Number,
     required: true
+  },
+  userName:{
+    type: String, 
+    required: true
+  },
+  email: {
+    type: String
+  },
+  status: {
+    type: String,
+    default: "Active",
+    required: true
   }
 });
 
