@@ -14,7 +14,6 @@ import { Spinner } from "@/components/ui/spinner";
 import { set } from "@firebase/database";
 import { cloudinaryConfig } from '@/components/cloudinary/cloudinary'
 import BZAlert from "@/components/others/bzaltert";
-import { useRouter } from "next/router";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -35,7 +34,6 @@ export default function Component() {
     let [photo, setPhotos] = useState([]);
     const [email, setEmail] = useState('')
     const [userName, setUserName] = useState('')
-
 
     const [alert, setAlert] = useState({
         variant: "",
@@ -81,7 +79,6 @@ export default function Component() {
             userName: userName
         }));
     }, [userLoggedIn, userId, email, userName]);
-
 
     // Handle file change
     const handleFileChange = (e) => {
@@ -167,10 +164,10 @@ export default function Component() {
     // Handle posting ad
     const handlePosting = async () => {
         try {
-            setSpinnerShow(true);
+            setSpinnerShow(true)
             setTimeout(async () => {
                 await handleUpload();
-                console.log(adsData);
+                console.log(adsData)
                 const res = await axios.post(`${server_url}/ads/posting`, adsData, {
                     headers: {
                         "Content-Type": "application/json",
@@ -182,37 +179,25 @@ export default function Component() {
                         title: "Success",
                         desc: "Ads uploaded successfully",
                         show: true
-                    });
-                    console.log('uploaded successfully');
+                    })
+                    console.log('uploaded succesfully')
                 } else {
                     setAlert({
                         variant: "error",
                         title: "Error",
                         desc: "Something happened. Please try again",
                         show: true
-                    });
-                    console.log('nothing happened');
+                    })
+                    console.log('nothing happended')
                 }
-                setSpinnerShow(false);
-                handleDiscard();
-
-                // Reset the alert back to its default state after a certain time
-                setTimeout(() => {
-                    setAlert({
-                        variant: "",
-                        title: "",
-                        desc: "",
-                        show: false
-                    });
-                }, 3000); // Adjust the time as needed
-            }, 2000);
+                setSpinnerShow(false)
+                handleDiscard()
+            }, 2000)
 
         } catch (error) {
-            console.log(error);
-            setSpinnerShow(false);
+            console.log(error)
         }
     };
-
 
 
     const handleDiscard = () => {
@@ -240,22 +225,12 @@ export default function Component() {
     if (!userLoggedIn) {
         return (
             <div>
-                <Spinner className="size-20 py-6"></Spinner>
+                <Spinner></Spinner>
             </div>
         );
     }
 
-    function HomeIcon(props: any) {
-        return (
-            <svg {...props} xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M240-200h120v-240h240v240h120v-360L480-740 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z" /></svg>
-        )
-    }
 
-    function ListIcon(props: any) {
-        return (
-            <svg {...props} xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M280-600v-80h560v80H280Zm0 160v-80h560v80H280Zm0 160v-80h560v80H280ZM160-600q-17 0-28.5-11.5T120-640q0-17 11.5-28.5T160-680q17 0 28.5 11.5T200-640q0 17-11.5 28.5T160-600Zm0 160q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520q17 0 28.5 11.5T200-480q0 17-11.5 28.5T160-440Zm0 160q-17 0-28.5-11.5T120-320q0-17 11.5-28.5T160-360q17 0 28.5 11.5T200-320q0 17-11.5 28.5T160-280Z" /></svg>
-        )
-    }
 
     return (
         <div className="container shadow-2xl max-w-4xl mx-auto p-6 sm:p-8 md:p-10 mt-10 mb-10">
@@ -267,11 +242,11 @@ export default function Component() {
                 <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
-                            <BreadcrumbLink className="p-2" href="/"><HomeIcon /></BreadcrumbLink>
+                            <BreadcrumbLink href="/">Home</BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
-                            <BreadcrumbLink className="p-2" href="/adlisting"><ListIcon></ListIcon></BreadcrumbLink>
+                            <BreadcrumbLink href="/adlisting">All Ads</BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
@@ -279,6 +254,10 @@ export default function Component() {
                         </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>
+                <div className="flex gap-2">
+                    <Button variant="outline" onClick={handleDiscard}>Discard</Button>
+                    <Button onClick={handlePosting} disabled={!saveButton}>Post Ad</Button>
+                </div>
             </div>
             <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="grid gap-4">
@@ -364,10 +343,6 @@ export default function Component() {
                             Upload Images (up to 3)
                         </Label>
                         <Input id="images" type="file" multiple onChange={handleFileChange} required />
-                    </div>
-                    <div className="flex gap-2 pb-8">
-                        <Button variant="outline" onClick={handleDiscard}>Discard</Button>
-                        <Button onClick={handlePosting} disabled={!saveButton}>Post Ad</Button>
                     </div>
                 </div>
 
