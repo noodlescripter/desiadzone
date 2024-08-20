@@ -84,10 +84,10 @@ export default function Adslisting() {
             <BreadcrumbItem>
               <BreadcrumbLink className="p-2" href="/"><HomeIcon></HomeIcon></BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/adlisting">All Ads</BreadcrumbLink>
-            </BreadcrumbItem>
+           {/*  <BreadcrumbSeparator /> */}
+            {/* <BreadcrumbItem>
+              <BreadcrumbLink href="/adlisting"><ListIcon></ListIcon></BreadcrumbLink>
+            </BreadcrumbItem> */}
           </BreadcrumbList>
         </Breadcrumb>
         <div className="flex items-center space-x-4">

@@ -75,6 +75,7 @@ export default function Component({ params }) {
   return (
     <div className="container mx-auto py-8 px-8">
       <div className={"flex flex-auto content-start text-xs m-3"}>
+        {params.category.charAt(0).toUpperCase()}{params.category.slice(1)}
       </div>
       <div className="flex items-center justify-between mb-6">
         <Breadcrumb>
@@ -82,10 +83,10 @@ export default function Component({ params }) {
             <BreadcrumbItem>
               <BreadcrumbLink href="/" className="p-2"><HomeIcon></HomeIcon></BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
+            {/* <BreadcrumbSeparator /> */}
+            {/* <BreadcrumbItem>
               <BreadcrumbLink href="/adlisting">{params.category}</BreadcrumbLink>
-            </BreadcrumbItem>
+            </BreadcrumbItem> */}
           </BreadcrumbList>
         </Breadcrumb>
         <div className="flex items-center space-x-4">
