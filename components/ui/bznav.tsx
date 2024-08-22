@@ -25,6 +25,7 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@radix-ui/react-select"
+import { ModeToggle } from "../theme/theme-toggle"
 
 
 export default function Component() {
@@ -69,7 +70,7 @@ export default function Component() {
     return (
         <header className="bg-background sticky top-0 z-50 w-full border-b border-muted shadow-2xl">
             <div className="container flex h-16 items-center justify-between px-4 md:px-6">
-                <Link href="#" className="text-lg font-bold" prefetch={false}>
+                <Link href="/" className="text-lg font-bold" prefetch={false}>
                     <img src="/logo.png" className="h-24"></img>
                 </Link>
                 <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
@@ -120,6 +121,7 @@ export default function Component() {
                     <Link href="/misc/about" className="hover:text-primary" prefetch={false}>
                         About Us
                     </Link>
+                    {/* <ModeToggle></ModeToggle> */}
                 </nav>
                 <Sheet>
                     <SheetTrigger asChild>

@@ -6,6 +6,7 @@ import Footer from "@/components/ui/footer";
 import { ClerkProvider } from "@clerk/nextjs";
 import { IBM_Plex_Mono } from 'next/font/google'
 import { cn } from '@/lib/utils'
+import { ThemeProvider } from "@/components/theme/theme-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -36,16 +37,23 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <link rel="icon" href="/favicon.ico" sizes="any" />
-      <html lang="en">
-      <body className={cn(
+      <html lang="en" suppressHydrationWarning>
+        <body className={cn(
           'antialiased',
           fontHeading.variable,
           fontBody.variable
         )}>
-      <BzNav/>
-      {children}
-      <Footer/>
-      </body>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <BzNav />
+            {children}
+            <Footer />
+          </ThemeProvider>
+        </body>
       </html>
     </ClerkProvider>
   );

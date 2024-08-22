@@ -84,7 +84,7 @@ export default function Adslisting() {
             <BreadcrumbItem>
               <BreadcrumbLink className="p-2" href="/"><HomeIcon></HomeIcon></BreadcrumbLink>
             </BreadcrumbItem>
-           {/*  <BreadcrumbSeparator /> */}
+            {/*  <BreadcrumbSeparator /> */}
             {/* <BreadcrumbItem>
               <BreadcrumbLink href="/adlisting"><ListIcon></ListIcon></BreadcrumbLink>
             </BreadcrumbItem> */}
@@ -156,14 +156,23 @@ export default function Adslisting() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pb-10">
         {filteredAds.map((ad, index) => (
           <Card key={index} className="bg-white rounded-3xl overflow-hidden shadow-2xl">
-            <img
-              src={ad.photoURLs[0].url}
-              alt={ad.title}
-              width={400}
-              height={300}
-              className="object-cover w-full h-48"
-              style={{ aspectRatio: "400/300", objectFit: "cover" }}
-            />
+            <div className="relative">
+              <img
+                src={ad.photoURLs[0].url}
+                alt={ad.title}
+                width={400}
+                height={300}
+                className="object-cover w-full h-48"
+                style={{ aspectRatio: "400/300", objectFit: "cover" }}
+              />
+              <img
+                src="/logo.png"
+                alt="Logo"
+                className="absolute top-2 left-2 w-44 h-16"
+              />
+            </div>
+
+
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <h2 className="font-bold mb-2">{ad.title}</h2>
