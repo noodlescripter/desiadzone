@@ -25,6 +25,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogClose, Dialog
 
 import { Textarea } from "@/components/ui/textarea"
 import ChatComponent from "@/components/chat/chatComponent"
+import ShareButton from "@/components/ui/share-button"
 
 export default function Component({ params }) {
     const [getProduct, setProducts] = useState(null);
@@ -205,15 +206,16 @@ export default function Component({ params }) {
                         </div>
                         <div className="flex flex-col gap-2 min-[400px]:flex-row">
                             <Link href={`tel:${getProduct.phoneNumber}`}>
-                                <Button size="lg">
+                                <Button size="lg" className="w-full">
                                     <CellIcon></CellIcon>
                                 </Button>
                             </Link>
                             <Link href={`email:${getProduct.email}`}>
-                                <Button size="lg">
+                                <Button size="lg" className="w-full">
                                     <EmailIcon></EmailIcon>
                                 </Button>
                             </Link>
+                            <ShareButton></ShareButton>
                         </div>
                     </div>
                 </div>
