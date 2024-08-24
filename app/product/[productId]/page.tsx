@@ -6,7 +6,7 @@
 "use client"
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel"
 import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardContent } from "@/components/ui/card"
+import { Card, CardHeader, CardContent, CardTitle, CardFooter, CardDescription } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { useEffect, useState } from "react"
 import axios from "axios"
@@ -28,7 +28,25 @@ import ChatComponent from "@/components/chat/chatComponent"
 
 export default function Component({ params }) {
     const [getProduct, setProducts] = useState(null);
-
+    const [date, setDate] = useState({
+        year: "",
+        date: "",
+        month: ""
+    })
+    const months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+    ]
 
     useEffect(() => {
         const getOneProducts = async function () {
@@ -46,6 +64,13 @@ export default function Component({ params }) {
         getOneProducts();
     }, []);
 
+    useEffect(() => {
+        if (getProduct) {
+            console.log(getProduct)
+            convertDate(getProduct.createdAt)
+        }
+    }, [getProduct])
+
     if (!getProduct) {
         return (
             <>
@@ -61,17 +86,34 @@ export default function Component({ params }) {
             <svg {...props} xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M200-80q-33 0-56.5-23.5T120-160v-451q-18-11-29-28.5T80-680v-120q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v120q0 23-11 40.5T840-611v451q0 33-23.5 56.5T760-80H200Zm0-520v440h560v-440H200Zm-40-80h640v-120H160v120Zm200 280h240v-80H360v80Zm120 20Z" /></svg>
         )
     }
-    
+
     function HomeIcon(props: any) {
         return (
             <svg {...props} xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M240-200h120v-240h240v240h120v-360L480-740 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z" /></svg>
         )
     }
 
-    function ListIcon(props: any){
+    function ListIcon(props: any) {
         return (
-            <svg {...props} xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M280-600v-80h560v80H280Zm0 160v-80h560v80H280Zm0 160v-80h560v80H280ZM160-600q-17 0-28.5-11.5T120-640q0-17 11.5-28.5T160-680q17 0 28.5 11.5T200-640q0 17-11.5 28.5T160-600Zm0 160q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520q17 0 28.5 11.5T200-480q0 17-11.5 28.5T160-440Zm0 160q-17 0-28.5-11.5T120-320q0-17 11.5-28.5T160-360q17 0 28.5 11.5T200-320q0 17-11.5 28.5T160-280Z"/></svg>
+            <svg {...props} xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M280-600v-80h560v80H280Zm0 160v-80h560v80H280Zm0 160v-80h560v80H280ZM160-600q-17 0-28.5-11.5T120-640q0-17 11.5-28.5T160-680q17 0 28.5 11.5T200-640q0 17-11.5 28.5T160-600Zm0 160q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520q17 0 28.5 11.5T200-480q0 17-11.5 28.5T160-440Zm0 160q-17 0-28.5-11.5T120-320q0-17 11.5-28.5T160-360q17 0 28.5 11.5T200-320q0 17-11.5 28.5T160-280Z" /></svg>
         )
+    }
+
+    function convertDate(fullDate: any) {
+        console.log(fullDate, "Full date")
+        const newDate = fullDate.slice(0, 10);
+        const arrDate = newDate.split('-');
+        if (Array.isArray(arrDate)) {
+            console.log("In array")
+            const getMonth = months[parseInt(arrDate[1]) - 1];
+            const year = arrDate[0];
+            const date = arrDate[2];
+            setDate({
+                year: year,
+                month: getMonth,
+                date: date
+            })
+        }
     }
 
     return (
@@ -99,13 +141,29 @@ export default function Component({ params }) {
                                 getProduct.photoURLs.map((url) => (
                                     <>
                                         <CarouselItem>
-                                            <img
+                                            <div className="relative">
+                                                <img
+                                                    src={url.url}
+                                            
+                                                    width={800}
+                                                    height={600}
+                                                   className="object-cover w-full aspect-[4/3]"
+                                                    style={{ aspectRatio: "400/300", objectFit: "cover" }}
+                                                />
+                                                <img
+                                                    src="/logo.png"
+                                                    alt="Logo"
+                                                    className="absolute top-2 left-2 w-44 h-16"
+                                                />
+                                            </div>
+
+                                            {/* <img
                                                 src={url.url}
                                                 alt="Product Image"
                                                 width={800}
                                                 height={600}
                                                 className="object-cover w-full aspect-[4/3]"
-                                            />
+                                            /> */}
                                         </CarouselItem>
                                     </>
                                 ))
@@ -118,7 +176,7 @@ export default function Component({ params }) {
                 <div className="grid gap-6">
                     <div>
                         <h1 className="text-3xl font-bold">{getProduct.title}</h1>
-                        <p className="text-muted-foreground text-lg">Posted on: {getProduct.createdAt.slice(0, 10)}</p>
+                        <p className="text-muted-foreground text-lg">Posted on: {`${date.month} ${date.date}, ${date.year}`}</p>
                     </div>
                     <div className="grid gap-4">
                         <div className="grid gap-2">
@@ -156,13 +214,34 @@ export default function Component({ params }) {
                                     <EmailIcon></EmailIcon>
                                 </Button>
                             </Link>
-
                         </div>
                     </div>
-
                 </div>
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-16 pb-28 pt-10 shadow-2xl">
+                <h1>Feeds</h1>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-lg">
+                            <Link href={"https://shadowdriverjs.noodlescript.com"} className="text-blue-700 underline">ShadowdriverJS</Link>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground mb-4">
+                            ShadowdriverJS is a sophisticated JavaScript library that extends the capabilities of webdriverJS while taking inspiration from the renowned Protractor. It is a versatile tool that simplifies web automation and testing, providing developers and quality assurance professionals with a powerful and flexible solution.
+                        </p>
+                    </CardContent>
+                    <CardFooter className="flex justify-between">
+                        <div className="flex items-center text-sm text-muted-foreground">
+                            by @noodelscripter
+                        </div>
+                        <Avatar>
+                            <AvatarFallback>NS</AvatarFallback>
+                        </Avatar>
+                    </CardFooter>
+                </Card>
+            </div>
         </div>
 
     )
@@ -286,173 +365,6 @@ function PhoneIcon(props) {
         </svg>
     )
 }
-// return (
-//     <div>
-//         <Breadcrumb className={"content-start m-6"}>
-//             <BreadcrumbList>
-//                 <BreadcrumbItem>
-//                     <BreadcrumbLink href="/">Home</BreadcrumbLink>
-//                 </BreadcrumbItem>
-//                 <BreadcrumbSeparator />
-//                 <BreadcrumbItem>
-//                     <BreadcrumbLink href={`/product/${getProduct._id}`}>{getProduct.title}</BreadcrumbLink>
-//                 </BreadcrumbItem>
-//             </BreadcrumbList>
-//         </Breadcrumb>
-//         <div className="grid gap-8 p-4 md:p-6 lg:grid-cols-2 lg:gap-12">
-//             <div className="grid gap-6">
-//                 <Carousel className="rounded-lg overflow-hidden">
-//                     <CarouselContent>
-//                         {
-//                             getProduct.photoURLs.map((url) => (
-//                                 <>
-//                                     <CarouselItem>
-//                                         <img
-//                                             src={url.url}
-//                                             alt="Product Image"
-//                                             width={800}
-//                                             height={600}
-//                                             className="object-cover w-full aspect-[4/3]"
-//                                         />
-//                                     </CarouselItem>
-//                                 </>
-//                             ))
-//                         }
-//                     </CarouselContent>
-//                     <CarouselPrevious />
-//                     <CarouselNext />
-//                 </Carousel>
-//                 <div className="grid gap-2">
-//                     <h1 className="text-2xl font-bold">{getProduct.title}</h1>
-//                     <p className="text-muted-foreground">
-//                         {getProduct.description}
-//                     </p>
-//                     {/* TODO --- future release */}
-//                     {/* <div className="flex items-center gap-2">
-//                         <div className="flex items-center gap-0.5">
-//                             <StarIcon className="w-5 h-5 fill-primary" />
-//                             <StarIcon className="w-5 h-5 fill-primary" />
-//                             <StarIcon className="w-5 h-5 fill-primary" />
-//                             <StarIcon className="w-5 h-5 fill-muted stroke-muted-foreground" />
-//                             <StarIcon className="w-5 h-5 fill-muted stroke-muted-foreground" />
-//                         </div>
-//                         <span className="text-sm text-muted-foreground">(12 reviews)</span>
-//                     </div> */}
-//                     <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-//                         <div className="text-3xl font-bold">${getProduct.price}.00</div>
-//                         <div className="flex gap-2">
-//                             <Link href={`tell:${getProduct.phoneNumber}`}>
-//                                 <Button size="icon"><CellIcon></CellIcon></Button>
-//                             </Link>
-//                             <Link href={`email:${getProduct.email}`}>
-//                                 <Button size="icon">
-//                                     <EmailIcon></EmailIcon>
-//                                 </Button>
-//                             </Link>
-//                         </div>
-//                     </div>
-//                 </div>
-//             </div>
-//             <div className="grid gap-6">
-//                 <Card>
-//                     <CardHeader>
-//                         <div className="flex items-center gap-4">
-//                             <Avatar className="w-12 h-12">
-//                                 <AvatarImage src="/placeholder-user.jpg" alt="Seller Avatar" />
-//                                 <AvatarFallback>{getProduct.userName.charAt(0)}</AvatarFallback>
-//                             </Avatar>
-//                             <div>
-//                                 <h3 className="font-semibold">{getProduct.userName}</h3>
-//                                 <p className="text-sm text-muted-foreground">Seller</p>
-//                             </div>
-//                         </div>
-//                     </CardHeader>
-//                     <CardContent>
-//                         <div className="grid gap-4">
-//                             <div className="flex items-center gap-2">
-//                                 <LocateIcon className="w-5 h-5 text-muted-foreground" />
-//                                 <span className="text-muted-foreground">{getProduct.city}, {getProduct.state}</span>
-//                             </div>
-//                             <div className="flex items-center gap-2">
-//                                 <span className="text-muted-foreground">Email: {getProduct.email}</span>
-//                             </div>
-//                             <div className="flex items-center gap-2">
-//                                 <span className="text-muted-foreground">Phone: {getProduct.phoneNumber}</span>
-//                             </div>
-//                             {/* Future Release */}
-//                             {/* <div className="flex items-center gap-2">
-//                                 <div className="flex items-center gap-0.5">
-//                                     <StarIcon className="w-5 h-5 fill-primary" />
-//                                     <StarIcon className="w-5 h-5 fill-primary" />
-//                                     <StarIcon className="w-5 h-5 fill-primary" />
-//                                     <StarIcon className="w-5 h-5 fill-muted stroke-muted-foreground" />
-//                                     <StarIcon className="w-5 h-5 fill-muted stroke-muted-foreground" />
-//                                 </div>
-//                                 <span className="text-muted-foreground">(4.5 / 5)</span>
-//                             </div> */}
-//                             <div className="grid gap-2">
-//                                 <h4 className="font-semibold">Seller Reviews</h4>
-//                                 <div className="grid gap-4">
-//                                     <div className="flex flex-col gap-4 sm:flex-row sm:gap-4">
-//                                         <Avatar className="w-10 h-10">
-//                                             <AvatarImage src="/placeholder-user.jpg" alt="Reviewer Avatar" />
-//                                             <AvatarFallback>JS</AvatarFallback>
-//                                         </Avatar>
-//                                         <div className="grid gap-1">
-//                                             <div className="flex items-center gap-2">
-//                                                 <h5 className="font-semibold">Jane Smith</h5>
-//                                                 <div className="flex items-center gap-0.5">
-//                                                     {/* <StarIcon className="w-4 h-4 fill-primary" />
-//                                                     <StarIcon className="w-4 h-4 fill-primary" />
-//                                                     <StarIcon className="w-4 h-4 fill-primary" />
-//                                                     <StarIcon
-//                                                         className="w-4 h-4 fill-muted stroke-muted-foreground" />
-//                                                     <StarIcon
-//                                                         className="w-4 h-4 fill-muted stroke-muted-foreground" /> */}
-//                                                 </div>
-//                                             </div>
-//                                             <p className="text-sm text-muted-foreground">
-//                                                 The product is great and the seller was very helpful. Highly
-//                                                 recommended!
-//                                             </p>
-//                                         </div>
-//                                     </div>
-//                                     <div className="flex flex-col gap-4 sm:flex-row sm:gap-4">
-//                                         <Avatar className="w-10 h-10">
-//                                             <AvatarImage src="/placeholder-user.jpg" alt="Reviewer Avatar" />
-//                                             <AvatarFallback>JS</AvatarFallback>
-//                                         </Avatar>
-//                                         <div className="grid gap-1">
-//                                             <div className="flex items-center gap-2">
-//                                                 <h5 className="font-semibold">Michael Johnson</h5>
-//                                                 <div className="flex items-center gap-0.5">
-//                                                     <StarIcon className="w-4 h-4 fill-primary" />
-//                                                     <StarIcon className="w-4 h-4 fill-primary" />
-//                                                     <StarIcon className="w-4 h-4 fill-primary" />
-//                                                     <StarIcon className="w-4 h-4 fill-primary" />
-//                                                     <StarIcon
-//                                                         className="w-4 h-4 fill-muted stroke-muted-foreground" />
-//                                                 </div>
-//                                             </div>
-//                                             <p className="text-sm text-muted-foreground">
-//                                                 I'm very satisfied with the product and the seller's responsiveness.
-//                                                 Highly recommended.
-//                                             </p>
-//                                         </div>
-//                                     </div>
-//                                 </div>
-//                             </div>
-//                         </div>
-//                     </CardContent>
-//                 </Card>
-//                 <div className="aspect-video rounded-lg overflow-hidden">
-//                     <div />
-//                 </div>
-//             </div>
-//         </div>
-//     </div>
-
-// )
 
 function LocateIcon(props) {
     return (

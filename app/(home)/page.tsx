@@ -35,16 +35,16 @@ export default function LandingPage() {
                                     </div>
                                     <div className="flex flex-col gap-2 min-[400px]:flex-row">
                                           <Link href={"/adlisting"}>
-                                                <Button size="sm">Explore</Button>
+                                                <Button size="sm" className="w-full">Explore</Button>
                                           </Link>
 
                                           <Link href={"/postlisting"}>
-                                                <Button variant="outline" size="sm">
+                                                <Button variant="outline" className="w-full" size="sm">
                                                       List Ad
                                                 </Button></Link>
                                     </div>
                               </div>
-                              <div>
+                              {/* <div>
                                     <Carousel
 
                                           className="w-full h-[200px] rounded-lg overflow-hidden"
@@ -70,7 +70,7 @@ export default function LandingPage() {
                                           <CarouselPrevious></CarouselPrevious>
                                           <CarouselNext></CarouselNext>
                                     </Carousel>
-                              </div>
+                              </div> */}
                         </div>
                   </section>
                   <section className="w-full py-12 md:py-24 lg:py-32 bg-muted shadow-lg">
@@ -160,13 +160,18 @@ export default function LandingPage() {
                                                                         width="300"
                                                                         height="200"
                                                                         alt="Product 1"
-                                                                        className="w-full h-[200px] object-cover rounded-t-lg"
+                                                                        className="w-full h-[200px] object-cover rounded-2xl"
                                                                   />
+                                                                  <img
+                                                                        src="/logo.png"
+                                                                        alt="Logo"
+                                                                        className="absolute w-44 h-16" />
+
                                                             </CardHeader>
                                                             <CardContent className="p-4">
                                                                   <div className="flex items-center justify-between">
                                                                         <h3 className="text-lg font-medium">{product.title}</h3>
-                                                                        <span className="text-primary font-medium">${product.price}</span>
+                                                                        <span className="text-primary font-medium">${product.price}.00</span>
                                                                   </div>
                                                                   <p className="text-muted-foreground text-sm line-clamp-2">
                                                                         {product.description}

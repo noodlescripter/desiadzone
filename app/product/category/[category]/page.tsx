@@ -155,13 +155,22 @@ export default function Component({ params }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredAds.map((ad) => (
           <div key={ad._id} className="bg-background rounded-lg shadow-md overflow-hidden">
-            <img
-              src={ad.photoURLs[0].url}
-              alt={ad.title}
-              width={400}
-              height={300}
-              className="w-full h-48 object-cover"
-            />
+            <div className="relative">
+              <img
+                src={ad.photoURLs[0].url}
+                alt={ad.title}
+                width={400}
+                height={300}
+                className="object-cover w-full h-48"
+                style={{ aspectRatio: "400/300", objectFit: "cover" }}
+              />
+              <img
+                src="/logo.png"
+                alt="Logo"
+                className="absolute top-2 left-2 w-44 h-16"
+              />
+            </div>
+
             <div className="p-4">
               <h3 className="text-lg font-bold mb-2">{ad.title}</h3>
               <p className="text-muted-foreground mb-4">{ad.description}</p>
